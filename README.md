@@ -7,7 +7,7 @@ values such as usernames or ip addresses.
 
 Add this line to your application's Gemfile:
 
-    gem 'identiconify'
+    gem "identiconify"
 
 And then execute:
 
@@ -22,7 +22,7 @@ Or install it yourself as:
 Require the Identiconify
 
 ```ruby
-require 'identiconify'
+require "identiconify"
 ```
 
 Now you have access to the Identiconify::Identicon class which can be use as
@@ -34,7 +34,7 @@ identicon = Identiconify::Identicon.new(string)
 png_data = identicon.to_png_blob
 
 # The png data can then be written to disk or be sent over an http connection
-File.open('image.png', 'w') do |file|
+File.open("image.png", "w") do |file|
   file.write(png_data)
 end
 ```
