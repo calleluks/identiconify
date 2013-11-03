@@ -6,7 +6,12 @@ module Identiconify
   class Identicon
     HASH_KEY = "61616f73646a6173646a616f7369646a"
 
-    attr_reader :string, :square_size, :row_count, :width, :inverse_offset
+    attr_reader :string,
+                :square_size,
+                :row_count,
+                :width,
+                :inverse_offset,
+                :style
 
     def initialize(string, options={})
       @string = string
@@ -17,24 +22,38 @@ module Identiconify
       # offset the inverted version of the identicon to not create gaps or
       # overlaps in the middle of the image.
       @inverse_offset = @width - @square_size * @row_count
+      @style = options.fetch(:style) { :default }.to_sym
     end
 
     def column_count
       row_count.even? ? row_count/2 : row_count/2+1
     end
 
-    def to_png_blob
-      hash = SipHash.digest(HASH_KEY, string)
-
+    def color_for_hash(hash)
       # Use the three first bytes of the hash to generate a color
       r = hash & 0xff
       g = (hash >> 8) & 0xff
       b = (hash >> 16) & 0xff
       a = 0xff
-      color = ChunkyPNG::Color.rgba(r,g,b,a)
+      transform_color ChunkyPNG::Color.rgba(r,g,b,a)
+    end
+
+    def transform_color(color)
+      if style == :bw
+        ChunkyPNG::Color.to_grayscale(color)
+      else
+        color
+      end
+    end
+
+    def to_png_blob
+      hash = SipHash.digest(HASH_KEY, string)
+
+      
+      color = color_for_hash(hash)
       bg_color = ChunkyPNG::Color::TRANSPARENT
 
-      # Remove the used three bytes
+      # Remove the used three color bytes
       hash >>= 24
 
       png = ChunkyPNG::Image.new(width, width, bg_color)
