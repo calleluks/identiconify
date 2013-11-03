@@ -11,7 +11,7 @@ module Identiconify
                 :row_count,
                 :width,
                 :inverse_offset,
-                :style
+                :colors
 
     def initialize(string, options={})
       @string = string
@@ -22,7 +22,7 @@ module Identiconify
       # offset the inverted version of the identicon to not create gaps or
       # overlaps in the middle of the image.
       @inverse_offset = @width - @square_size * @row_count
-      @style = options.fetch(:style) { :default }.to_sym
+      @colors = options.fetch(:colors) { :default }.to_sym
     end
 
     def column_count
@@ -39,7 +39,7 @@ module Identiconify
     end
 
     def transform_color(color)
-      if style == :bw
+      if colors == :bw
         ChunkyPNG::Color.to_grayscale(color)
       else
         color
