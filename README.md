@@ -32,11 +32,21 @@ such:
 string = "this is my string"
 identicon = Identiconify::Identicon.new(string)
 png_data = identicon.to_png_blob
+```
 
-# The png data can then be written to disk or be sent over an http connection
+The png data can then be written to disk or be sent over an http connection.
+
+```ruby
 File.open("image.png", "w") do |file|
   file.write(png_data)
 end
+```
+
+To specify the desired size of the identicon (in pixels), pass the widht option
+to the constructor.
+
+```ruby
+identicon = Identiconify::Identicon.new(string, width: 512)
 ```
 
 ## Contributing
