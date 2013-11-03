@@ -34,22 +34,34 @@ module Identiconify
       r = hash & 0xff
       g = (hash >> 8) & 0xff
       b = (hash >> 16) & 0xff
-      a = 0xff
-      transform_color ChunkyPNG::Color.rgba(r,g,b,a)
+      transform_color ChunkyPNG::Color.rgb(r,g,b)
+    end
+
+    def greyscale(color)
+      ChunkyPNG::Color.to_grayscale(color)
+    end
+
+    def tint(color)
+      r = ChunkyPNG::Color.r(color)
+      g = ChunkyPNG::Color.g(color)
+      b = ChunkyPNG::Color.b(color)
+      r += (0.3*(255-r)).round
+      g += (0.3*(255-g)).round
+      b += (0.3*(255-b)).round
+      ChunkyPNG::Color.rgb(r,g,b)
     end
 
     def transform_color(color)
-      if colors == :bw
-        ChunkyPNG::Color.to_grayscale(color)
-      else
-        color
+      case colors
+      when :bw then greyscale(color)
+      when :tinted then tint(color)
+      else color
       end
     end
 
     def to_png_blob
       hash = SipHash.digest(HASH_KEY, string)
 
-      
       color = color_for_hash(hash)
       bg_color = ChunkyPNG::Color::TRANSPARENT
 
@@ -74,7 +86,7 @@ module Identiconify
           hash >>= 1
         end
       end
-      png.to_blob :color_mode => ChunkyPNG::COLOR_INDEXED
+      png.to_blob :fast_rgba
     end
   end
 end
