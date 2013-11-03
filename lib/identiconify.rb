@@ -6,20 +6,21 @@ module Identiconify
   class Identicon
     HASH_KEY = "61616f73646a6173646a616f7369646a"
 
-    attr_reader :string, :square_size, :row_count
+    attr_reader :string, :square_size, :row_count, :width, :inverse_offset
 
-    def initialize(string)
+    def initialize(string, options={})
       @string = string
-      @square_size = 50
+      @width = options.fetch(:width) { 250 }
       @row_count = 5
+      @square_size = @width / @row_count
+      # Since we can't draw subpixels we need to calculate how much we have to
+      # offset the inverted version of the identicon to not create gaps or
+      # overlaps in the middle of the image.
+      @inverse_offset = @width - @square_size * @row_count
     end
 
     def column_count
       row_count.even? ? row_count/2 : row_count/2+1
-    end
-
-    def width
-      square_size * row_count
     end
 
     def to_png_blob
@@ -37,8 +38,8 @@ module Identiconify
       hash >>= 24
 
       png = ChunkyPNG::Image.new(width, width, bg_color)
-      0.upto(row_count).each do |row|
-        0.upto(column_count).each do |column|
+      0.upto(row_count-1).each do |row|
+        0.upto(column_count-1).each do |column|
           if hash & 1 == 1
             x0 = column*square_size
             y0 = row*square_size
@@ -47,8 +48,8 @@ module Identiconify
             png.rect(x0, y0, x1, y1, color, color)
 
             # Inverse the x coordinates making the image mirrored vertically
-            x0 = width-(column+1)*square_size
-            x1 = width-column*square_size-1
+            x0 = width-(column+1)*square_size-inverse_offset
+            x1 = width-column*square_size-inverse_offset-1
             png.rect(x0, y0, x1, y1, color, color)
           end
           hash >>= 1
