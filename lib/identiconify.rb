@@ -1,17 +1,20 @@
 require "identiconify/version"
 require "chunky_png"
-require "siphash"
+require "digest"
 
 module Identiconify
   class Identicon
-    HASH_KEY = "61616f73646a6173646a616f7369646a"
+    DEFAULT_HASH_PROVIDER = ->(string) {
+      Digest::SHA1.hexdigest(string).to_i(16)
+    }
 
     attr_reader :string,
                 :square_size,
                 :row_count,
                 :size,
                 :inverse_offset,
-                :colors
+                :colors,
+                :hash_provider
 
     def initialize(string, options={})
       @string = string
@@ -23,6 +26,7 @@ module Identiconify
       # overlaps in the middle of the image.
       @inverse_offset = @size - @square_size * @row_count
       @colors = options.fetch(:colors) { :default }.to_sym
+      @hash_provider = options.fetch(:hash_provider) { DEFAULT_HASH_PROVIDER }
     end
 
     def column_count
@@ -60,7 +64,8 @@ module Identiconify
     end
 
     def to_png_blob
-      hash = SipHash.digest(HASH_KEY, string)
+      hash = hash_provider.call(string)
+      puts hash
 
       color = color_for_hash(hash)
       bg_color = ChunkyPNG::Color::TRANSPARENT
