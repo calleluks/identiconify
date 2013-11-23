@@ -65,7 +65,6 @@ module Identiconify
 
     def to_png_blob
       hash = hash_provider.call(string)
-      puts hash
 
       color = color_for_hash(hash)
       bg_color = ChunkyPNG::Color::TRANSPARENT
