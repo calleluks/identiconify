@@ -1,3 +1,4 @@
+[![Code Climate](https://codeclimate.com/github/calleerlandsson/identiconify.png)](https://codeclimate.com/github/calleerlandsson/identiconify)
 # Identiconify
 
 Identiconify makes it super simple to generate identicons representing string
